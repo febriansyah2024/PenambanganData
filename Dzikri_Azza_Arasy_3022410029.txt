@@ -1,0 +1,134 @@
+
+DESKRIPSI KASUS DAN SPESIFIKASI DATASET
+Studi Kasus : Data Preprocessing pada Dataset Kredit Nasabah
+Dataset     : dataset_kredit_nasabah (1).csv
+Partner     : Dzikri Azza Arasy (3022410029)
+================================================================================
+
+1. LATAR BELAKANG DAN DESKRIPSI KASUS
+--------------------------------------------------------------------------------
+Sebuah lembaga keuangan memiliki rekaman data pengajuan kredit nasabah yang
+tersimpan dalam berkas "dataset_kredit_nasabah (1).csv". Data ini memuat profil
+demografis, kondisi finansial, besaran pinjaman, skor kredit, serta status
+pinjaman dari para calon debitur.
+
+Pada kondisi mentah, dataset tersebut belum layak langsung digunakan untuk
+analisis statistik maupun pemodelan machine learning (seperti klasifikasi
+kelayakan kredit atau analisis risiko gagal bayar) karena ditemukan berbagai
+permasalahan kualitas data, antara lain:
+a. Inkonsistensi penulisan huruf (kapitalisasi tidak seragam) dan spasi
+   berlebih pada kolom kategorikal.
+b. Kesalahan tipe data pada kolom numerik akibat tercampur karakter teks
+   (seperti kata " tahun" pada kolom Usia dan tanda titik pemisah ribuan pada
+   kolom Pendapatan_Bulanan).
+c. Adanya nilai anomali atau tidak masuk akal (seperti nilai Usia <= 0).
+d. Terdapat nilai kosong (missing value) pada atribut numerik maupun
+   kategorikal.
+e. Perbedaan rentang satuan nilai yang sangat jauh antarvariabel numerik.
+
+Oleh karena itu, dilakukan serangkaian tahapan Data Preprocessing secara
+sistematis (Data Cleansing, Data Transformation, Data Integration, Feature
+Reduction, dan Feature Extraction)
+
+
+2. DESKRIPSI ATRIBUT / FITUR DATASET (12 KOLOM AWAL)
+--------------------------------------------------------------------------------
+1. ID_Nasabah
+   - Tipe Awal : Kategorikal / Teks (Identifier)
+   - Deskripsi : Kode identitas unik untuk setiap nasabah yang mengajukan kredit.
+   - Perlakuan : Dihapus pada tahap Feature Reduction karena tidak memiliki
+                 nilai prediktif dalam analisis statistik maupun pemodelan.
+
+2. Tanggal_Pengajuan
+   - Tipe Awal : Teks / Tanggal
+   - Deskripsi : Tanggal saat nasabah mengajukan permohonan pinjaman.
+   - Perlakuan : Dihapus pada tahap Feature Reduction karena tidak digunakan
+                 sebagai fitur pemodelan.
+
+3. Jenis_Kelamin
+   - Tipe Awal : Kategorikal Nominal
+   - Deskripsi : Informasi jenis kelamin nasabah.
+   - Perlakuan : Dibersihkan kapitalisasi dan spasinya, diisi nilai kosongnya
+                 menggunakan Modus, lalu dikonversi menjadi fitur biner melalui
+                 One-Hot Encoding.
+
+4. Pendidikan
+   - Tipe Awal : Kategorikal Ordinal
+   - Deskripsi : Jenjang pendidikan terakhir yang ditempuh nasabah.
+   - Perlakuan : Dibersihkan kapitalisasi dan spasinya, diisi nilai kosongnya
+                 menggunakan Modus, lalu disandikan ke bentuk angka pada kolom
+                 baru "Pendidikan_Encoded" menggunakan Label Encoding.
+
+5. Pekerjaan
+   - Tipe Awal : Kategorikal Nominal
+   - Deskripsi : Jenis profesi atau bidang pekerjaan nasabah saat ini.
+   - Perlakuan : Dibersihkan kapitalisasi dan spasinya, diisi nilai kosongnya
+                 menggunakan Modus, serta digunakan sebagai variabel pengelompok
+                 pada tahap agregasi rata-rata skor kredit dan pendapatan.
+
+6. Status_Pinjaman
+   - Tipe Awal : Kategorikal (Target / Label)
+   - Deskripsi : Keterangan status persetujuan atau kondisi pinjaman nasabah.
+   - Perlakuan : Dibersihkan kapitalisasi dan spasinya serta diisi nilai
+                 kosongnya menggunakan Modus.
+
+7. Usia
+   - Tipe Awal : Teks / Numerik Kontinu
+   - Deskripsi : Umur nasabah dalam satuan tahun.
+   - Perlakuan : Dihapus teks " tahun", diubah ke numerik, diperiksa nilai
+                 tidak masuk akal (<= 0), diimputasi nilai kosongnya dengan
+                 Median, dicek distribusinya dengan Histogram, dan dikelompokkan
+                 menjadi kolom baru "Kategori_Usia" (Muda, Paruh Baya, Tua).
+
+8. Pendapatan_Bulanan
+   - Tipe Awal : Teks / Numerik Kontinu
+   - Deskripsi : Besaran penghasilan rutin nasabah setiap bulan.
+   - Perlakuan : Dihapus karakter titik (.) pemisah ribuan, dikonversi ke tipe
+                 numerik, dan diisi nilai kosongnya menggunakan Median.
+
+9. Pendapatan_Tahunan
+   - Tipe Awal : Numerik Kontinu
+   - Deskripsi : Total penghasilan nasabah dalam satu tahun.
+   - Perlakuan : Diimputasi nilai kosongnya menggunakan Median dan disetarakan
+                 skalanya ke rentang [0, 1] pada kolom baru
+                 "Pendapatan_Tahunan_Normalized" menggunakan MinMaxScaler.
+
+10. Jumlah_Tanggungan
+    - Tipe Awal : Numerik Diskrit
+    - Deskripsi : Banyaknya anggota keluarga yang menjadi tanggungan nasabah.
+    - Perlakuan : Diimputasi nilai kosongnya menggunakan Median.
+
+11. Jumlah_Pinjaman
+    - Tipe Awal : Numerik Kontinu
+    - Deskripsi : Nominal dana pinjaman yang diajukan oleh nasabah.
+    - Perlakuan : Diimputasi nilai kosongnya menggunakan Median dan disetarakan
+                  skalanya ke rentang [0, 1] pada kolom baru
+                  "Jumlah_Pinjaman_Normalized" menggunakan MinMaxScaler.
+
+12. Skor_Kredit
+    - Tipe Awal : Numerik Kontinu
+    - Deskripsi : Nilai indikator kelayakan kredit milik nasabah.
+    - Perlakuan : Diimputasi nilai kosongnya menggunakan Median, dianalisis
+                  pencilannya menggunakan Boxplot, dan disetarakan skalanya ke
+                  rentang [0, 1] pada kolom baru "Skor_Kredit_Normalized".
+
+
+3. RINGKASAN METODOLOGI DATA PREPROCESSING
+--------------------------------------------------------------------------------
+- Data Cleansing      : Standardisasi teks huruf kapital, penghapusan spasi
+                        berlebih, pembersihan format kolom Usia dan
+                        Pendapatan_Bulanan, pengecekan usia tidak wajar (<= 0),
+                        imputasi missing value berbasis statistik deskriptif
+                        (Median untuk numerik & Modus untuk kategorikal), serta
+                        deteksi outlier (Histogram dan Boxplot).
+- Data Transformation : Normalisasi Min-Max [0, 1], One-Hot Encoding dan Label
+                        Encoding, diskritisasi (binning) usia menjadi 3 kategori,
+                        serta agregasi rata-rata berdasarkan kategori pekerjaan.
+- Data Integration    : Penyediaan kerangka penggabungan tabel modular (merge
+                        dan concat) untuk kesiapan integrasi sumber data baru.
+- Feature Reduction   : Penghapusan kolom non-prediktif (ID_Nasabah dan
+                        Tanggal_Pengajuan).
+- Feature Extraction  : Standarisasi fitur numerik utama (StandardScaler) dan
+                        evaluasi komponen utama menggunakan Principal Component
+                        Analysis (PCA).
+================================================================================
